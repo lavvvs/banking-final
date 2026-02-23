@@ -22,6 +22,8 @@ export async function PATCH(
     const params = await context.params;
     const accountId = params.accountId;
 
+    console.log("🔍 Account status update request:", { accountId, userId });
+
     if (!accountId || !mongoose.Types.ObjectId.isValid(accountId)) {
       return NextResponse.json(
         { error: "Invalid account ID" },

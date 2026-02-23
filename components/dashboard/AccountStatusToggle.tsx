@@ -60,8 +60,15 @@ export function AccountStatusToggle({
       });
 
       if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.error || "Failed to update account status");
+        let errorMessage = "Failed to update account status";
+        try {
+          const errorData = await response.json();
+          errorMessage = errorData.error || errorMessage;
+        } catch (e) {
+          // If response is not JSON (e.g. HTML error page), use status text
+          errorMessage = `Server Error (${response.status}): ${response.statusText || "Unknown Error"}`;
+        }
+        throw new Error(errorMessage);
       }
 
       setShowDialog(false);

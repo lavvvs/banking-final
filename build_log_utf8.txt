@@ -1,0 +1,156 @@
+﻿
+> my-v0-project@0.1.0 build C:\Users\lavan\Downloads\banking-web-application
+> next build
+
+node.exe : [baseline-b
+rowser-mapping] The 
+data in this module 
+is over two months 
+old.  To ensure 
+accurate Baseline 
+data, please update: 
+`npm i baseline-browse
+r-mapping@latest -D`
+At C:\Users\lavan\AppD
+ata\Roaming\npm\pnpm.p
+s1:24 char:5
++     & "node$exe"  "$
+basedir/node_modules/p
+npm/bin/pnpm.cjs" 
+$args
++     ~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~
+~
+    + CategoryInfo    
+          : NotSpeci  
+  fied: ([baseline-   
+ brows...ping@late    
+st -D`:String) []    
+, RemoteException
+    + FullyQualifiedE 
+   rrorId : NativeCo  
+  mmandError
+ 
+Γû▓ Next.js 16.1.6 (Turbopack)
+- Environments: .env
+
+ΓÜá The "middleware" 
+file convention is 
+deprecated. Please 
+use "proxy" instead. 
+Learn more: https://ne
+xtjs.org/docs/messages
+/middleware-to-proxy
+  Creating an optimized production build ...
+[baseline-browser-mapp
+ing] The data in this 
+module is over two 
+months old.  To 
+ensure accurate 
+Baseline data, please 
+update: `npm i baselin
+e-browser-mapping@late
+st -D`
+
+> Build error occurred
+Error: Turbopack 
+build failed with 1 
+errors:
+./node_modules/.pnpm/@
+clerk+nextjs@6.36.2_ne
+xt@1_c7632b209959474c6
+f9dda2f8f5740c3/node_m
+odules/@clerk/nextjs/d
+ist/esm/server/keyless
+-custom-headers.js:70:
+10
+Ecmascript file had 
+an error
+[0m [90m 68 |[39m  
+ }
+ [90m 69 |[39m }
+[31m[1m>[22m[39m[
+90m 70 |[39m 
+[36mfunction[39m for
+matMetadataHeaders(met
+adata) {
+ [90m    |[39m      
+    [31m[1m^[22m[3
+9m[31m[1m^[22m[39m
+[31m[1m^[22m[39m[
+31m[1m^[22m[39m[31
+m[1m^[22m[39m[31m
+[1m^[22m[39m[31m[1
+m^[22m[39m[31m[1m^
+[22m[39m[31m[1m^[
+22m[39m[31m[1m^[22
+m[39m[31m[1m^[22m
+[39m[31m[1m^[22m[3
+9m[31m[1m^[22m[39m
+[31m[1m^[22m[39m[
+31m[1m^[22m[39m[31
+m[1m^[22m[39m[31m
+[1m^[22m[39m[31m[1
+m^[22m[39m[31m[1m^
+[22m[39m[31m[1m^[
+22m[39m[31m[1m^[22
+m[39m
+ [90m 71 |[39m   
+[36mconst[39m 
+headers2 [33m=[39m 
+[36mnew[39m [33mHea
+ders[39m()[33m;[39m
+ [90m 72 |[39m   
+[36mif[39m (metadata
+[33m.[39mnodeVersion
+) {
+ [90m 73 |[39m     h
+eaders2[33m.[39m[36
+mset[39m([32m"Clerk-
+Node-Version"[39m[33
+m,[39m metadata[33m.
+[39mnodeVersion)[33m
+;[39m[0m
+
+Server Actions must 
+be async functions.
+
+
+Import trace:
+  Server Component:
+    ./node_modules/.pn
+pm/@clerk+nextjs@6.36.
+2_next@1_c7632b2099594
+74c6f9dda2f8f5740c3/no
+de_modules/@clerk/next
+js/dist/esm/server/key
+less-custom-headers.js
+    ./node_modules/.pn
+pm/@clerk+nextjs@6.36.
+2_next@1_c7632b2099594
+74c6f9dda2f8f5740c3/no
+de_modules/@clerk/next
+js/dist/esm/app-router
+/server/keyless-provid
+er.js
+    ./node_modules/.pn
+pm/@clerk+nextjs@6.36.
+2_next@1_c7632b2099594
+74c6f9dda2f8f5740c3/no
+de_modules/@clerk/next
+js/dist/esm/app-router
+/server/ClerkProvider.
+js
+    ./node_modules/.pn
+pm/@clerk+nextjs@6.36.
+2_next@1_c7632b2099594
+74c6f9dda2f8f5740c3/no
+de_modules/@clerk/next
+js/dist/esm/index.js
+    ./app/layout.tsx
+
+
+    at ignore-listed 
+frames
+ΓÇëELIFECYCLEΓÇë Command failed with exit code 1.

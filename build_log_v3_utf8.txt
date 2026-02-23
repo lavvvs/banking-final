@@ -1,0 +1,91 @@
+﻿
+> my-v0-project@0.1.0 build C:\Users\lavan\Downloads\banking-web-application
+> next build
+
+   Γû▓ Next.js 15.2.0-canary.7
+   - Environments: .env
+
+   Creating an optimized production build ...
+node.exe : Failed to 
+compile.
+At C:\Users\lavan\AppD
+ata\Roaming\npm\pnpm.p
+s1:24 char:5
++     & "node$exe"  "$
+basedir/node_modules/p
+npm/bin/pnpm.cjs" 
+$args
++     ~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~
+~
+    + CategoryInfo    
+          : NotSpeci  
+  fied: (Failed to    
+ compile.:String)     
+[], RemoteExcepti    
+on
+    + FullyQualifiedE 
+   rrorId : NativeCo  
+  mmandError
+ 
+
+./app/(dashboard)/dash
+board/deposit/return/p
+age.tsx
+Module not found: 
+Can't resolve 
+'mongoose'
+
+https://nextjs.org/doc
+s/messages/module-not-
+found
+
+./app/(dashboard)/dash
+board/diagnostics/page
+.tsx
+Module not found: 
+Can't resolve 
+'mongoose'
+
+https://nextjs.org/doc
+s/messages/module-not-
+found
+
+./app/(dashboard)/dash
+board/page.tsx
+Module not found: 
+Can't resolve 
+'mongoose'
+
+https://nextjs.org/doc
+s/messages/module-not-
+found
+
+./app/(dashboard)/dash
+board/recovery/page.ts
+x
+Module not found: 
+Can't resolve 
+'mongoose'
+
+https://nextjs.org/doc
+s/messages/module-not-
+found
+
+./app/(dashboard)/dash
+board/transactions/pag
+e.tsx
+Module not found: 
+Can't resolve 
+'mongoose'
+
+https://nextjs.org/doc
+s/messages/module-not-
+found
+
+
+> Build failed 
+because of webpack 
+errors
+ΓÇëELIFECYCLEΓÇë Command failed with exit code 1.
