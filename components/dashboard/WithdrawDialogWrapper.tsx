@@ -22,51 +22,37 @@ export function WithdrawDialogWrapper({ accounts, userId }: Props) {
   const [open, setOpen] = useState(false);
 
   const createTransaction = async (data: any) => {
-    const response = await fetch("/api/transactions", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(data),
-    });
+    try {
+      const response = await fetch("/api/transactions", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      });
 
-    if (!response.ok) {
-      const error = await response.json();
-      throw new Error(error.error || "Failed to create transaction");
+      if (!response.ok) {
+        let errorMessage = "Failed to create transaction";
+        try {
+          const error = await response.json();
+          errorMessage = error.error || errorMessage;
+        } catch (e) {
+          errorMessage = `Server Error (${response.status}): ${response.statusText || "Unknown Error"}`;
+        }
+        throw new Error(errorMessage);
+      }
+
+      return await response.json();
+    } catch (error: any) {
+      console.error("Transaction error:", error);
+      throw error;
     }
-
-    return response.json();
   };
 
   const updateAccountBalance = async (
     accountId: string,
     newBalance: number
-  ) => {
-    try {
-      const response = await fetch(`/api/accounts/${accountId}`, {
-        method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ balance: newBalance }),
-      });
-
-      if (!response.ok) {
-        const error = await response.json();
-        console.error("Balance update failed:", error);
-        throw new Error(error.error || "Failed to update balance");
-      }
-
-      const data = await response.json();
-
-      // Force a refresh of the account data
-      // You might need to call a refresh function here
-      // For example, if you're using React Query or SWR:
-      // mutate('/api/accounts');
-
-      return data;
-    } catch (error) {
-      console.error("Error updating balance:", error);
-      throw error;
-    }
+  ): Promise<void> => {
+    // This is now handled atomically by createTransaction
+    console.log("ℹ️ Balance update handled by transaction API");
   };
   return (
     <>

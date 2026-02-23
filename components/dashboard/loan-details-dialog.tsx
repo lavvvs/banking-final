@@ -226,11 +226,18 @@ export function LoanDetailsDialog({ loan, accounts }: LoanDetailsDialogProps) {
         router.refresh();
       }
     } catch (err: any) {
+      console.error("Payment error:", err);
+      let errorMessage = "Failed to process EMI payment. Please try again.";
+      
+      if (err.response) {
+        // Axios error
+        errorMessage = err.response.data?.error || `Server Error (${err.response.status}): ${err.response.statusText || "Unknown"}`;
+      } else if (err.message) {
+        errorMessage = err.message;
+      }
+
       toast.error("Payment Failed", {
-        description:
-          err.response?.data?.error ||
-          err.message ||
-          "Failed to process EMI payment. Please try again.",
+        description: errorMessage,
       });
     } finally {
       setIsLoading(false);

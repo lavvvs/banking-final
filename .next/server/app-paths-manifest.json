@@ -1,5 +1,8 @@
 {
-  "/(dashboard)/dashboard/transactions/page": "app/(dashboard)/dashboard/transactions/page.js",
-  "/(dashboard)/dashboard/accounts/page": "app/(dashboard)/dashboard/accounts/page.js",
-  "/(dashboard)/dashboard/page": "app/(dashboard)/dashboard/page.js"
+  "/api/accounts/[accountId]/status/route": "app/api/accounts/[accountId]/status/route.js",
+  "/admin/page": "app/admin/page.js",
+  "/admin/settings/page": "app/admin/settings/page.js",
+  "/(dashboard)/dashboard/page": "app/(dashboard)/dashboard/page.js",
+  "/admin/transactions/page": "app/admin/transactions/page.js",
+  "/(dashboard)/dashboard/accounts/page": "app/(dashboard)/dashboard/accounts/page.js"
 }
