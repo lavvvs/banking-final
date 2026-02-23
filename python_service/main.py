@@ -10,7 +10,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from datetime import datetime
 
 # Load environment variables
-load_dotenv(dotenv_path="../.env")
+load_dotenv()
 
 app = FastAPI()
 
