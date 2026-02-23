@@ -367,19 +367,27 @@ If the user's request is not about data query, return:
 
 # Model configuration
 models_to_try = [
-    "gemini-2.5-flash",
-    "gemini-2.0-flash-exp",
+    "gemini-2.0-flash",
     "gemini-1.5-flash",
     "gemini-1.5-pro",
 ]
+chat_session = None
 GEMINI_READY = False
 
-if GEMINI_API_KEY:
+def initialize_gemini():
+    global chat_session, GEMINI_READY
+    if GEMINI_READY and chat_session:
+        return True
+        
+    if not GEMINI_API_KEY:
+        print("WARNING: GEMINI_API_KEY is not set.")
+        return False
+        
     genai.configure(api_key=GEMINI_API_KEY)
     
     for model_name in models_to_try:
         try:
-            print(f"Attempting to configure Gemini with model: {model_name}")
+            print(f"Attempting to initialize Gemini with model: {model_name}")
             model = genai.GenerativeModel(
                 model_name=model_name,
                 generation_config={
@@ -391,25 +399,16 @@ if GEMINI_API_KEY:
                 system_instruction=SYSTEM_PROMPT,
             )
             chat_session = model.start_chat(history=[])
-            test_response = chat_session.send_message("Hello")
-            print(f"DONE: Test response received (length: {len(test_response.text)} chars)")
-            
             GEMINI_READY = True
-            print(f"SUCCESS: Gemini API configured with model: {model_name}")
-            break
+            print(f"SUCCESS: Gemini API initialized with model: {model_name}")
+            return True
         except Exception as e:
-            print(f"FAILED to configure model {model_name}: {str(e)}")
-            import traceback
-            traceback.print_exc()
-            chat_session = None
+            print(f"FAILED to initialize model {model_name}: {str(e)}")
             
-    if not GEMINI_READY:
-        print("=" * 80)
-        print("CRITICAL ERROR: All Gemini models failed to initialize.")
-        print("=" * 80)
-else:
-    print("WARNING: GEMINI_API_KEY is not set. Chat features will not work.")
-    GEMINI_READY = False
+    return False
+
+# Attempt initial fast configuration (no test message)
+initialize_gemini()
 
 class ChatRequest(BaseModel):
     message: str
@@ -421,6 +420,11 @@ class ChatResponse(BaseModel):
 @app.post("/chat", response_model=ChatResponse)
 async def chat_endpoint(request: ChatRequest):
     print(f"Chat request received: {request.message}")
+    
+    # Lazy initialization check
+    if not GEMINI_READY:
+        initialize_gemini()
+        
     if not db:
         return ChatResponse(
             response="The AI Banking Assistant is not connected to the database. Please check your DATABASE_URL environment variable."
