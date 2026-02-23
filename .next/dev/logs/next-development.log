@@ -1,0 +1,25 @@
+[00:00:02.611] Server  WARN     ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead. Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+[00:00:03.030] Server  LOG      ✓ Ready in 2.3s
+[00:00:07.386] Server  LOG      ○ Compiling /dashboard ...
+[00:00:14.042] Server  LOG     ========================================
+[00:00:14.043] Server  LOG     🔍 CURRENT USER INFO:
+[00:00:14.043] Server  LOG     Clerk ID: "user_363dUb6nt5LQ2ao12duKV8sqK8c"
+[00:00:14.044] Server  LOG     Email: "lavanyakumar593@gmail.com"
+[00:00:14.044] Server  LOG     ========================================
+[00:00:14.230] Server  LOG     📊 DATABASE STATS:
+[00:00:14.232] Server  LOG     Total accounts in DB: 68
+[00:00:14.234] Server  LOG     YOUR accounts: 5
+[00:00:14.235] Server  LOG     Total transactions in DB: 518
+[00:00:14.236] Server  LOG     YOUR transactions: 27
+[00:00:14.345] Server  LOG     📝 SAMPLE DATA:
+[00:00:14.346] Server  LOG     Sample account userId: "user_3iJK456LMN789opq"
+[00:00:14.346] Server  LOG     Sample transaction userId: "user_363dUb6nt5LQ2ao12duKV8sqK8c"
+[00:00:14.350] Server  LOG     Sample transaction accountId: {}
+[00:00:14.350] Server  LOG     ========================================
+[00:00:14.624] Server  LOG     🔍 ORPHANED DATA CHECK:
+[00:00:14.625] Server  LOG       Orphaned transactions: 0
+[00:00:14.625] Server  LOG       Orphaned loans: 0
+[00:00:14.625] Server  LOG       Orphaned PAID EMIs without txn link: 0
+[00:00:14.626] Server  LOG       Accounts with wrong userId: 0
+[00:00:14.627] Server  LOG     ========================================
+[00:00:16.260] Browser WARN    Clerk: Clerk has been loaded with development keys. Development instances have strict usage limits and should not be used when deploying your application to production. Learn more: https://clerk.com/docs/deployments/overview

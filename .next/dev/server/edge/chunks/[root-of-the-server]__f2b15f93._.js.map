@@ -1,0 +1,6 @@
+{
+  "version": 3,
+  "sources": [],
+  "sections": [
+    {"offset": {"line": 16, "column": 0}, "map": {"version":3,"sources":["turbopack:///[project]/middleware.ts"],"sourcesContent":["// middleware.ts\nimport { clerkMiddleware, createRouteMatcher } from \"@clerk/nextjs/server\";\n\nconst isProtectedRoute = createRouteMatcher([\n  \"/dashboard(.*)\",\n  \"/admin(.*)\",\n  \"/profile(.*)\",\n  \"/loans(.*)\",\n]);\n\nexport default clerkMiddleware((auth, req) => {\n  // In Clerk v6, auth is NOT a function.\n  // It exposes methods directly.\n  if (isProtectedRoute(req)) {\n    auth.protect(); // ✔ CORRECT FOR CLERK v6+\n  }\n});\n\nexport const config = {\n  matcher: [\"/((?!_next/static|_next/image|favicon.ico).*)\", \"/(api|trpc)(.*)\"],\n};\n"],"names":[],"mappings":"AAAA,gBAAgB;;;;;;;AAChB;AAAA;;AAEA,MAAM,mBAAmB,IAAA,wMAAkB,EAAC;IAC1C;IACA;IACA;IACA;CACD;uCAEc,IAAA,wMAAe,EAAC,CAAC,MAAM;IACpC,uCAAuC;IACvC,+BAA+B;IAC/B,IAAI,iBAAiB,MAAM;QACzB,KAAK,OAAO,IAAI,0BAA0B;IAC5C;AACF;AAEO,MAAM,SAAS;IACpB,SAAS;QAAC;QAAiD;KAAkB;AAC/E"}}]
+}
