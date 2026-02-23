@@ -50,6 +50,7 @@ export default function AIChatbot() {
     setLoading(true);
 
     try {
+      console.log("🚀 Sending request to /api/py/chat...");
       const response = await fetch("/api/py/chat", {
         method: "POST",
         headers: {
@@ -58,7 +59,25 @@ export default function AIChatbot() {
         body: JSON.stringify({ message: input }),
       });
 
+      console.log(`📡 Response Status: ${response.status} ${response.statusText}`);
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error("❌ API Error Detail:", errorText);
+        setMessages((prev) => [
+          ...prev,
+          {
+            role: "assistant",
+            content: `ERROR ${response.status}: Reached the server but received an error. ${
+              response.status === 500 ? "This usually means the Python backend crashed (likely missing DATABASE_URL or GEMINI_API_KEY in Vercel)." : "Please check the Vercel logs."
+            }`,
+          },
+        ]);
+        return;
+      }
+
       const data = await response.json();
+      console.log("✅ Received data:", data);
 
       const assistantMessage: Message = {
         role: "assistant",
@@ -67,13 +86,13 @@ export default function AIChatbot() {
       };
 
       setMessages((prev) => [...prev, assistantMessage]);
-    } catch (error) {
-      console.error("Error:", error);
+    } catch (error: any) {
+      console.error("🚨 Network/Fetch Error:", error);
       setMessages((prev) => [
         ...prev,
         {
           role: "assistant",
-          content: "Sorry, I encountered an error. Please try again.",
+          content: `Network Error: ${error.message || "Could not reach the AI service."} Check if your deployment is active and the URL is correct.`,
         },
       ]);
     } finally {

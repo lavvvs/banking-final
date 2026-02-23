@@ -25,11 +25,18 @@ app.add_middleware(
 
 # MongoDB Connection
 MONGO_URI = os.getenv("DATABASE_URL") or os.getenv("MONGODB_URI")
-if not MONGO_URI:
-    raise ValueError("DATABASE_URL is not set in .env")
+db = None
+client = None
 
-client = MongoClient(MONGO_URI)
-db = client.get_database()
+if MONGO_URI:
+    try:
+        client = MongoClient(MONGO_URI)
+        db = client.get_database()
+        print("SUCCESS: Connected to MongoDB")
+    except Exception as e:
+        print(f"FAILED to connect to MongoDB: {e}")
+else:
+    print("WARNING: DATABASE_URL is not set. Database features will not work.")
 
 # Gemini Client
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
@@ -413,6 +420,12 @@ class ChatResponse(BaseModel):
 
 @app.post("/chat", response_model=ChatResponse)
 async def chat_endpoint(request: ChatRequest):
+    print(f"Chat request received: {request.message}")
+    if not db:
+        return ChatResponse(
+            response="The AI Banking Assistant is not connected to the database. Please check your DATABASE_URL environment variable."
+        )
+    
     if not GEMINI_READY or not chat_session:
         # Fallback to a helpful message instead of 503 error
         return ChatResponse(
