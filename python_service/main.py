@@ -5,6 +5,7 @@ from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 from pymongo import MongoClient
 from google import genai
+from google.genai import types
 from dotenv import load_dotenv
 from fastapi.middleware.cors import CORSMiddleware
 from datetime import datetime
@@ -388,13 +389,10 @@ def initialize_gemini():
         return False
         
     try:
-        # Use v1 API (not v1beta) so gemini-1.5-* models are available
-        genai_client = genai.Client(
-            api_key=GEMINI_API_KEY,
-            http_options={"api_version": "v1"}
-        )
+        # Use default v1beta client which supports system_instruction
+        genai_client = genai.Client(api_key=GEMINI_API_KEY)
         GEMINI_READY = True
-        print("SUCCESS: Gemini API Client initialized (v1)")
+        print("SUCCESS: Gemini API Client initialized (v1beta)")
         return True
     except Exception as e:
         print(f"FAILED to initialize Gemini Client: {str(e)}")
@@ -440,10 +438,10 @@ async def chat_endpoint(request: ChatRequest):
                 response = genai_client.models.generate_content(
                     model=model_name,
                     contents=request.message,
-                    config={
-                        "system_instruction": SYSTEM_PROMPT,
-                        "temperature": 0.7,
-                    }
+                    config=types.GenerateContentConfig(
+                        system_instruction=SYSTEM_PROMPT,
+                        temperature=0.7,
+                    )
                 )
                 ai_content = response.text.strip()
                 selected_model = model_name
@@ -458,6 +456,9 @@ async def chat_endpoint(request: ChatRequest):
                     continue
                 if "404" in err_str or "NOT_FOUND" in err_str:
                     print(f"Model {model_name} not available, trying next model...")
+                    continue
+                if "400" in err_str or "INVALID_ARGUMENT" in err_str:
+                    print(f"Model {model_name} gave invalid argument error, trying next model...")
                     continue
                 # Other unexpected error: raise immediately
                 raise model_err
@@ -521,7 +522,7 @@ async def chat_endpoint(request: ChatRequest):
             summary_response = genai_client.models.generate_content(
                 model=selected_model,
                 contents=summary_prompt,
-                config={"temperature": 0.3}
+                config=types.GenerateContentConfig(temperature=0.3)
             )
             summary = summary_response.text.strip()
             
