@@ -370,7 +370,9 @@ If the user's request is not about data query, return:
 # Model configuration
 models_to_try = [
     "gemini-2.0-flash",
+    "gemini-2.0-flash-lite",
     "gemini-1.5-flash",
+    "gemini-1.5-flash-8b",
     "gemini-1.5-pro",
 ]
 GEMINI_READY = False
@@ -449,7 +451,10 @@ async def chat_endpoint(request: ChatRequest):
                 if "429" in err_str or "RESOURCE_EXHAUSTED" in err_str or "quota" in err_str.lower():
                     print(f"Quota exceeded for {model_name}, trying next model...")
                     continue
-                # Non-quota error: raise immediately
+                if "404" in err_str or "NOT_FOUND" in err_str:
+                    print(f"Model {model_name} not available, trying next model...")
+                    continue
+                # Other unexpected error: raise immediately
                 raise model_err
 
         if ai_content is None:
