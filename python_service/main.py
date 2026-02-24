@@ -367,10 +367,11 @@ If the user's request is not about data query, return:
 {"type": "conversation", "message": "Your helpful response here"}
 """
 
-# Model configuration
+# Model configuration - ordered by preference
 models_to_try = [
     "gemini-2.0-flash",
     "gemini-2.0-flash-lite",
+    "gemini-2.0-flash-exp",
     "gemini-1.5-flash",
     "gemini-1.5-flash-8b",
     "gemini-1.5-pro",
@@ -387,9 +388,13 @@ def initialize_gemini():
         return False
         
     try:
-        genai_client = genai.Client(api_key=GEMINI_API_KEY)
+        # Use v1 API (not v1beta) so gemini-1.5-* models are available
+        genai_client = genai.Client(
+            api_key=GEMINI_API_KEY,
+            http_options={"api_version": "v1"}
+        )
         GEMINI_READY = True
-        print("SUCCESS: Gemini API Client initialized")
+        print("SUCCESS: Gemini API Client initialized (v1)")
         return True
     except Exception as e:
         print(f"FAILED to initialize Gemini Client: {str(e)}")
