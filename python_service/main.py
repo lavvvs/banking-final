@@ -411,7 +411,7 @@ async def chat_endpoint(request: ChatRequest):
     if not GEMINI_READY:
         initialize_gemini()
         
-    if not db:
+    if db is None:
         return ChatResponse(
             response="The AI Banking Assistant is not connected to the database. Please check your DATABASE_URL environment variable."
         )
@@ -508,8 +508,8 @@ async def health_check():
     return {
         "status": "ok",
         "gemini_ready": GEMINI_READY,
-        "mongodb_connected": client is not None,
-        "available_collections": db.list_collection_names() if client else []
+        "mongodb_connected": client_db is not None,
+        "available_collections": db.list_collection_names() if client_db is not None else []
     }
 
 @app.get("/debug/transactions")
