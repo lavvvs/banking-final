@@ -422,20 +422,41 @@ async def chat_endpoint(request: ChatRequest):
         )
 
     try:
-        # Select first working model
-        selected_model = models_to_try[0]
-        
-        # Send user message to Gemini using the new SDK syntax
-        response = genai_client.models.generate_content(
-            model=selected_model,
-            contents=request.message,
-            config={
-                "system_instruction": SYSTEM_PROMPT,
-                "temperature": 0.7,
-            }
-        )
-        ai_content = response.text.strip()
-        
+        # Try each model in order, falling back on quota errors
+        ai_content = None
+        selected_model = None
+        last_error = None
+
+        for model_name in models_to_try:
+            try:
+                print(f"Trying model: {model_name}")
+                response = genai_client.models.generate_content(
+                    model=model_name,
+                    contents=request.message,
+                    config={
+                        "system_instruction": SYSTEM_PROMPT,
+                        "temperature": 0.7,
+                    }
+                )
+                ai_content = response.text.strip()
+                selected_model = model_name
+                print(f"Success with model: {model_name}")
+                break
+            except Exception as model_err:
+                err_str = str(model_err)
+                print(f"Model {model_name} failed: {err_str}")
+                last_error = model_err
+                if "429" in err_str or "RESOURCE_EXHAUSTED" in err_str or "quota" in err_str.lower():
+                    print(f"Quota exceeded for {model_name}, trying next model...")
+                    continue
+                # Non-quota error: raise immediately
+                raise model_err
+
+        if ai_content is None:
+            return ChatResponse(
+                response="All Gemini models have exceeded their quota. Please try again later or check your API key quota at https://ai.dev/rate-limit."
+            )
+
         # Clean up markdown code blocks
         if ai_content.startswith("```json"):
             ai_content = ai_content[7:]
@@ -479,7 +500,7 @@ async def chat_endpoint(request: ChatRequest):
                     data={"query": pipeline}
                 )
 
-            # Summarize the results
+            # Summarize the results using the same working model
             summary_prompt = f"""
             User Question: "{request.message}"
             Database Results: {json.dumps(results[:10], default=str)} (showing first 10 items out of {len(results)} total)
@@ -502,6 +523,7 @@ async def chat_endpoint(request: ChatRequest):
     except Exception as e:
         print(f"Error in chat endpoint: {e}")
         return ChatResponse(response=f"An error occurred: {str(e)}")
+
 
 @app.get("/health")
 async def health_check():
