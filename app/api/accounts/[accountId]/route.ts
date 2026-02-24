@@ -5,7 +5,10 @@ import { Account } from "@/lib/models";
 import { auth } from "@clerk/nextjs/server";
 import mongoose from "mongoose";
 
-export async function PATCH(
+// Required to prevent Next.js from caching this mutation route on Vercel
+export const dynamic = "force-dynamic";
+
+async function updateAccount(
   request: NextRequest,
   context: { params: Promise<{ accountId: string }> }
 ) {
@@ -22,31 +25,17 @@ export async function PATCH(
     const params = await context.params;
     const accountId = params.accountId;
 
-    console.log("📝 Received accountId:", accountId);
+    console.log("📝 Received accountId update request:", accountId);
 
-    if (!accountId) {
+    if (!accountId || !mongoose.Types.ObjectId.isValid(accountId)) {
       return NextResponse.json(
-        { error: "Account ID is required" },
-        { status: 400 }
-      );
-    }
-
-    if (!mongoose.Types.ObjectId.isValid(accountId)) {
-      return NextResponse.json(
-        { error: `Invalid account ID format: ${accountId}` },
+        { error: `Invalid account ID: ${accountId}` },
         { status: 400 }
       );
     }
 
     const body = await request.json();
-    const { balance } = body;
-
-    if (balance === undefined || balance === null) {
-      return NextResponse.json(
-        { error: "Balance is required" },
-        { status: 400 }
-      );
-    }
+    const { balance, status } = body;
 
     const account = await Account.findOne({
       _id: new mongoose.Types.ObjectId(accountId),
@@ -57,23 +46,48 @@ export async function PATCH(
       return NextResponse.json({ error: "Account not found" }, { status: 404 });
     }
 
-    // Update balance
-    account.balance = balance;
+    // Update fields if provided
+    let updated = false;
+    
+    if (balance !== undefined && balance !== null) {
+      account.balance = balance;
+      updated = true;
+    }
+    
+    if (status !== undefined && status !== null) {
+      if (!["active", "inactive"].includes(status)) {
+        return NextResponse.json(
+          { error: "Invalid status. Must be 'active' or 'inactive'" },
+          { status: 400 }
+        );
+      }
+      account.status = status;
+      updated = true;
+    }
+
+    if (!updated) {
+      return NextResponse.json(
+        { error: "No fields provided for update (balance or status)" },
+        { status: 400 }
+      );
+    }
+
     await account.save();
 
-    console.log("✅ Account balance updated:", {
+    console.log("✅ Account updated successfully:", {
       accountId,
-      newBalance: balance,
+      fields: { balance, status },
     });
 
     return NextResponse.json(
       {
         success: true,
         account: {
-          _id: account._id,
+          _id: account._id.toString(),
           balance: account.balance,
-          accountName: account.accountName,
+          accountNumber: account.accountNumber,
           accountType: account.accountType,
+          status: account.status,
         },
       },
       { status: 200 }
@@ -86,3 +100,7 @@ export async function PATCH(
     );
   }
 }
+
+export const PATCH = updateAccount;
+export const PUT = updateAccount;
+

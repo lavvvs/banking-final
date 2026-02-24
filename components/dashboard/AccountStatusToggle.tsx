@@ -51,7 +51,7 @@ export function AccountStatusToggle({
     setIsLoading(true);
 
     try {
-      const response = await fetch(`/api/accounts/${accountId}/status`, {
+      const response = await fetch(`/api/accounts/${accountId}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
