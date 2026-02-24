@@ -52,7 +52,7 @@ export function AccountStatusToggle({
 
     try {
       const response = await fetch(`/api/accounts/${accountId}/status`, {
-        method: "PATCH",
+        method: "PUT",
         headers: {
           "Content-Type": "application/json",
         },

@@ -5,7 +5,10 @@ import { Account } from "@/lib/models";
 import { auth } from "@clerk/nextjs/server";
 import mongoose from "mongoose";
 
-export async function PATCH(
+// Required to prevent Next.js from caching this mutation route on Vercel
+export const dynamic = "force-dynamic";
+
+async function updateAccountStatus(
   request: NextRequest,
   context: { params: Promise<{ accountId: string }> }
 ) {
@@ -82,3 +85,8 @@ export async function PATCH(
     );
   }
 }
+
+// Export both PATCH and PUT to handle different HTTP method routing environments
+export const PATCH = updateAccountStatus;
+export const PUT = updateAccountStatus;
+
