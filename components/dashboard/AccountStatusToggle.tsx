@@ -61,12 +61,14 @@ export function AccountStatusToggle({
 
       if (!response.ok) {
         let errorMessage = "Failed to update account status";
+        let responseText = "";
         try {
-          const errorData = await response.json();
+          responseText = await response.text();
+          const errorData = JSON.parse(responseText);
           errorMessage = errorData.error || errorMessage;
         } catch (e) {
-          // If response is not JSON (e.g. HTML error page), use status text
           errorMessage = `Server Error (${response.status}): ${response.statusText || "Unknown Error"}`;
+          if (responseText) errorMessage += `\nRaw response: ${responseText.substring(0, 100)}`;
         }
         throw new Error(errorMessage);
       }
@@ -78,7 +80,8 @@ export function AccountStatusToggle({
       router.refresh();
     } catch (error: any) {
       console.error("Status update error:", error);
-      alert(error.message || "Failed to update account status");
+      const debugInfo = `\n(Method: PUT, URL: /api/accounts/${accountId})`;
+      alert((error.message || "Failed to update account status") + debugInfo);
     } finally {
       setIsLoading(false);
     }

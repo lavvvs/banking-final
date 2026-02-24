@@ -36,6 +36,7 @@ async function updateAccount(
 
     const body = await request.json();
     const { balance, status } = body;
+    console.log("📦 Update body:", body);
 
     const account = await Account.findOne({
       _id: new mongoose.Types.ObjectId(accountId),
@@ -43,8 +44,15 @@ async function updateAccount(
     });
 
     if (!account) {
+      console.log("❌ Account not found for update:", { accountId, userId });
       return NextResponse.json({ error: "Account not found" }, { status: 404 });
     }
+    
+    console.log("🔍 Current account state:", { 
+      id: account._id, 
+      status: account.status, 
+      balance: account.balance 
+    });
 
     // Update fields if provided
     let updated = false;
