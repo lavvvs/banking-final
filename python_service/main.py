@@ -4,7 +4,7 @@ from typing import List, Dict, Any
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 from pymongo import MongoClient
-import google.generativeai as genai
+from google import genai
 from dotenv import load_dotenv
 from fastapi.middleware.cors import CORSMiddleware
 from datetime import datetime
@@ -12,7 +12,8 @@ from datetime import datetime
 # Load environment variables
 load_dotenv()
 
-app = FastAPI()
+# Use root_path for Vercel rewrites (/api/py -> /)
+app = FastAPI(root_path="/api/py")
 
 # Configure CORS
 app.add_middleware(
@@ -26,12 +27,12 @@ app.add_middleware(
 # MongoDB Connection
 MONGO_URI = os.getenv("DATABASE_URL") or os.getenv("MONGODB_URI")
 db = None
-client = None
+client_db = None
 
 if MONGO_URI:
     try:
-        client = MongoClient(MONGO_URI)
-        db = client.get_database()
+        client_db = MongoClient(MONGO_URI)
+        db = client_db.get_database()
         print("SUCCESS: Connected to MongoDB")
     except Exception as e:
         print(f"FAILED to connect to MongoDB: {e}")
@@ -40,7 +41,8 @@ else:
 
 # Gemini Client
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
-chat_session = None
+genai_client = None
+GEMINI_READY = False
 
 # Enhanced SYSTEM_PROMPT with transaction type handling
 SYSTEM_PROMPT = """
@@ -371,43 +373,27 @@ models_to_try = [
     "gemini-1.5-flash",
     "gemini-1.5-pro",
 ]
-chat_session = None
 GEMINI_READY = False
 
 def initialize_gemini():
-    global chat_session, GEMINI_READY
-    if GEMINI_READY and chat_session:
+    global genai_client, GEMINI_READY
+    if GEMINI_READY and genai_client:
         return True
         
     if not GEMINI_API_KEY:
         print("WARNING: GEMINI_API_KEY is not set.")
         return False
         
-    genai.configure(api_key=GEMINI_API_KEY)
-    
-    for model_name in models_to_try:
-        try:
-            print(f"Attempting to initialize Gemini with model: {model_name}")
-            model = genai.GenerativeModel(
-                model_name=model_name,
-                generation_config={
-                    "temperature": 0.7,
-                    "top_p": 0.95,
-                    "top_k": 64,
-                    "max_output_tokens": 8192,
-                },
-                system_instruction=SYSTEM_PROMPT,
-            )
-            chat_session = model.start_chat(history=[])
-            GEMINI_READY = True
-            print(f"SUCCESS: Gemini API initialized with model: {model_name}")
-            return True
-        except Exception as e:
-            print(f"FAILED to initialize model {model_name}: {str(e)}")
-            
-    return False
+    try:
+        genai_client = genai.Client(api_key=GEMINI_API_KEY)
+        GEMINI_READY = True
+        print("SUCCESS: Gemini API Client initialized")
+        return True
+    except Exception as e:
+        print(f"FAILED to initialize Gemini Client: {str(e)}")
+        return False
 
-# Attempt initial fast configuration (no test message)
+# Attempt initial configuration
 initialize_gemini()
 
 class ChatRequest(BaseModel):
@@ -430,15 +416,24 @@ async def chat_endpoint(request: ChatRequest):
             response="The AI Banking Assistant is not connected to the database. Please check your DATABASE_URL environment variable."
         )
     
-    if not GEMINI_READY or not chat_session:
-        # Fallback to a helpful message instead of 503 error
+    if not GEMINI_READY or not genai_client:
         return ChatResponse(
-            response="The AI Banking Assistant has temporarily exceeded its free tier usage quota (20 requests/day). Please try again tomorrow, or update the GEMINI_API_KEY in the .env file with a key from a new Google Cloud project."
+            response="The AI Banking Assistant is not correctly initialized. Please check your GEMINI_API_KEY."
         )
 
     try:
-        # Send user message to Gemini
-        response = chat_session.send_message(request.message)
+        # Select first working model
+        selected_model = models_to_try[0]
+        
+        # Send user message to Gemini using the new SDK syntax
+        response = genai_client.models.generate_content(
+            model=selected_model,
+            contents=request.message,
+            config={
+                "system_instruction": SYSTEM_PROMPT,
+                "temperature": 0.7,
+            }
+        )
         ai_content = response.text.strip()
         
         # Clean up markdown code blocks
@@ -477,17 +472,11 @@ async def chat_endpoint(request: ChatRequest):
                     if hasattr(value, '__str__'):
                         doc[key] = str(value)
 
-            # If no results found, provide helpful debugging info
+            # If no results found
             if len(results) == 0:
-                # Try a simpler query to see what data exists
-                debug_query = [{"$limit": 5}, {"$project": {"type": 1, "description": 1, "amount": 1, "createdAt": 1}}]
-                debug_results = list(collection.aggregate(debug_query))
-                
-                debug_info = f"\n\nDEBUG INFO: Here are some sample {collection_name} records to help understand the data:\n{json.dumps(debug_results, indent=2, default=str)}"
-                
                 return ChatResponse(
-                    response=f"No results found for your query. The database returned 0 records.{debug_info if debug_results else ''}",
-                    data={"query": pipeline, "sample_data": debug_results}
+                    response=f"No results found for your query in the {collection_name} collection.",
+                    data={"query": pipeline}
                 )
 
             # Summarize the results
@@ -495,14 +484,14 @@ async def chat_endpoint(request: ChatRequest):
             User Question: "{request.message}"
             Database Results: {json.dumps(results[:10], default=str)} (showing first 10 items out of {len(results)} total)
             
-            Provide a clear, natural language summary. Include:
-            - Total number of records found
-            - Key details from the data (amounts, dates, types)
-            - Any important patterns or insights
-            Be specific with numbers, dates, and amounts. Format currencies properly.
+            Provide a clear, natural language summary. Include numbers and format currencies properly.
             """
             
-            summary_response = chat_session.send_message(summary_prompt)
+            summary_response = genai_client.models.generate_content(
+                model=selected_model,
+                contents=summary_prompt,
+                config={"temperature": 0.3}
+            )
             summary = summary_response.text.strip()
             
             return ChatResponse(response=summary, data=results)
@@ -512,8 +501,6 @@ async def chat_endpoint(request: ChatRequest):
 
     except Exception as e:
         print(f"Error in chat endpoint: {e}")
-        import traceback
-        traceback.print_exc()
         return ChatResponse(response=f"An error occurred: {str(e)}")
 
 @app.get("/health")
