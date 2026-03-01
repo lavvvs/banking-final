@@ -126,3 +126,10 @@ export async function PATCH(
 ) {
   return handleAccountUpdate(request, context);
 }
+
+export async function POST(
+  request: NextRequest,
+  context: { params: Promise<{ accountId: string }> }
+) {
+  return handleAccountUpdate(request, context);
+}

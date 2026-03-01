@@ -52,7 +52,7 @@ export function AccountStatusToggle({
 
     try {
       const response = await fetch(`/api/accounts/${accountId}`, {
-        method: "PUT",
+        method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
@@ -80,7 +80,7 @@ export function AccountStatusToggle({
       router.refresh();
     } catch (error: any) {
       console.error("Status update error:", error);
-      const debugInfo = `\n(Method: PUT, URL: /api/accounts/${accountId})`;
+      const debugInfo = `\n(Method: POST, URL: /api/accounts/${accountId})`;
       alert((error.message || "Failed to update account status") + debugInfo);
     } finally {
       setIsLoading(false);

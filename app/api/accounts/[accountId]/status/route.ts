@@ -103,3 +103,10 @@ export async function PATCH(
 ) {
   return handleAccountStatusUpdate(request, context);
 }
+
+export async function POST(
+  request: NextRequest,
+  context: { params: Promise<{ accountId: string }> }
+) {
+  return handleAccountStatusUpdate(request, context);
+}
