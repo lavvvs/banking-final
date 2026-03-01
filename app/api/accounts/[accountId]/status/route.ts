@@ -1,7 +1,7 @@
 // app/api/accounts/[accountId]/status/route.ts
 import { NextRequest, NextResponse } from "next/server";
 import dbConnect from "@/lib/mongodb";
-import { Account } from "@/lib/models";
+import { Account, Profile } from "@/lib/models";
 import { auth } from "@clerk/nextjs/server";
 import mongoose from "mongoose";
 
@@ -46,10 +46,14 @@ async function updateAccountStatus(
     }
 
     // Find the account
-    const account = await Account.findOne({
-      _id: new mongoose.Types.ObjectId(accountId),
-      userId,
-    });
+    const userProfile = await Profile.findOne({ clerkId: userId });
+    const isAdmin = userProfile?.isAdmin || false;
+
+    const query = isAdmin
+      ? { _id: new mongoose.Types.ObjectId(accountId) }
+      : { _id: new mongoose.Types.ObjectId(accountId), userId };
+
+    const account = await Account.findOne(query);
 
     if (!account) {
       return NextResponse.json({ error: "Account not found" }, { status: 404 });
