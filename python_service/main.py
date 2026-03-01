@@ -464,8 +464,9 @@ async def chat_endpoint(request: ChatRequest):
                 raise model_err
 
         if ai_content is None:
+            err_msg = str(last_error) if last_error else "All models failed"
             return ChatResponse(
-                response="All Gemini models have exceeded their quota. Please try again later or check your API key quota at https://ai.dev/rate-limit."
+                response=f"Gemini API Error: {err_msg}. Please check your API key quota at https://ai.dev/rate-limit."
             )
 
         # Clean up markdown code blocks
@@ -566,6 +567,21 @@ async def debug_transactions():
         }
     except Exception as e:
         return {"error": str(e)}
+
+@app.get("/debug/config")
+async def debug_config():
+    """Endpoint to verify API key format without exposing the full key"""
+    if not GEMINI_API_KEY:
+        return {"error": "GEMINI_API_KEY is not set"}
+    
+    # Show first 4 and last 4 chars for verification
+    masked_key = f"{GEMINI_API_KEY[:4]}...{GEMINI_API_KEY[-4:]}" if len(GEMINI_API_KEY) > 8 else "***"
+    return {
+        "gemini_api_key_format": masked_key,
+        "key_length": len(GEMINI_API_KEY),
+        "gemini_ready": GEMINI_READY,
+        "mongodb_connected": client_db is not None
+    }
 
 @app.get("/schemas")
 async def get_schemas():
