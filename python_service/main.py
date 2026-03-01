@@ -369,13 +369,13 @@ If the user's request is not about data query, return:
 """
 
 # Model configuration - ordered by preference (most reliable/highest quota first)
+# Updated for 2026 environment availability
 models_to_try = [
-    "gemini-1.5-flash",
-    "gemini-1.5-flash-8b",
+    "gemini-2.5-flash",
+    "gemini-3-pro-preview-01-26",
+    "gemini-2.5-pro-preview-12-25",
     "gemini-2.0-flash",
-    "gemini-2.0-flash-lite",
-    "gemini-2.0-flash-exp",
-    "gemini-1.5-pro",
+    "gemini-1.5-flash",
 ]
 GEMINI_READY = False
 
