@@ -368,13 +368,13 @@ If the user's request is not about data query, return:
 {"type": "conversation", "message": "Your helpful response here"}
 """
 
-# Model configuration - ordered by preference
+# Model configuration - ordered by preference (most reliable/highest quota first)
 models_to_try = [
+    "gemini-1.5-flash",
+    "gemini-1.5-flash-8b",
     "gemini-2.0-flash",
     "gemini-2.0-flash-lite",
     "gemini-2.0-flash-exp",
-    "gemini-1.5-flash",
-    "gemini-1.5-flash-8b",
     "gemini-1.5-pro",
 ]
 GEMINI_READY = False
