@@ -8,7 +8,7 @@ import mongoose from "mongoose";
 // Required to prevent Next.js from caching this mutation route on Vercel
 export const dynamic = "force-dynamic";
 
-async function updateAccount(
+async function handleAccountUpdate(
   request: NextRequest,
   context: { params: Promise<{ accountId: string }> }
 ) {
@@ -113,6 +113,16 @@ async function updateAccount(
   }
 }
 
-export const PATCH = updateAccount;
-export const PUT = updateAccount;
+export async function PUT(
+  request: NextRequest,
+  context: { params: Promise<{ accountId: string }> }
+) {
+  return handleAccountUpdate(request, context);
+}
 
+export async function PATCH(
+  request: NextRequest,
+  context: { params: Promise<{ accountId: string }> }
+) {
+  return handleAccountUpdate(request, context);
+}
