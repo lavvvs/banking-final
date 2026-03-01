@@ -133,3 +133,7 @@ export async function POST(
 ) {
   return handleAccountUpdate(request, context);
 }
+
+export async function GET() {
+  return NextResponse.json({ message: "Method allowed" }, { status: 200 });
+}
