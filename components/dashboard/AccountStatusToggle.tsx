@@ -16,6 +16,7 @@ import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { toggleAccountStatus } from "@/app/actions/account";
 
 interface AccountStatusToggleProps {
   accountId: string;
@@ -51,26 +52,10 @@ export function AccountStatusToggle({
     setIsLoading(true);
 
     try {
-      const response = await fetch(`/api/accounts/${accountId}`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ status: pendingStatus }),
-      });
+      const result = await toggleAccountStatus(accountId, pendingStatus);
 
-      if (!response.ok) {
-        let errorMessage = "Failed to update account status";
-        let responseText = "";
-        try {
-          responseText = await response.text();
-          const errorData = JSON.parse(responseText);
-          errorMessage = errorData.error || errorMessage;
-        } catch (e) {
-          errorMessage = `Server Error (${response.status}): ${response.statusText || "Unknown Error"}`;
-          if (responseText) errorMessage += `\nRaw response: ${responseText.substring(0, 100)}`;
-        }
-        throw new Error(errorMessage);
+      if (!result.success) {
+        throw new Error(result.error || "Failed to update account status");
       }
 
       setShowDialog(false);
@@ -80,8 +65,7 @@ export function AccountStatusToggle({
       router.refresh();
     } catch (error: any) {
       console.error("Status update error:", error);
-      const debugInfo = `\n(Method: PUT, URL: /api/accounts/${accountId})`;
-      alert((error.message || "Failed to update account status") + debugInfo);
+      alert(error.message || "Failed to update account status");
     } finally {
       setIsLoading(false);
     }
